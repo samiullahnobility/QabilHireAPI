@@ -1,0 +1,31 @@
+## .NET build output
+bin/
+obj/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## IDE settings
+.vs/
+.vscode/
+.idea/
+
+## Local configuration and secrets
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.*
+!.env.example
+
+## Logs and generated artifacts
+logs/
+*.log
+TestResults/
+coverage/
+
+## Operating-system files
+.DS_Store
+Thumbs.db
