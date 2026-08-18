@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/QabilHire.Api/QabilHire.Api.csproj" />
+    <Project Path="src/QabilHire.Application/QabilHire.Application.csproj" />
+    <Project Path="src/QabilHire.Domain/QabilHire.Domain.csproj" />
+    <Project Path="src/QabilHire.Infrastructure/QabilHire.Infrastructure.csproj" />
+  </Folder>
+</Solution>
