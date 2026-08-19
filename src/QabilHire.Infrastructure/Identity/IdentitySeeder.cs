@@ -16,17 +16,25 @@ public static class IdentitySeeder
         new("Sample Candidate", "candidate@qabilhire.com", "Candidate@12345")
     ];
 
-    public static async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    public static async Task SeedAsync(
+        IServiceProvider services,
+        bool seedDemoUsers,
+        CancellationToken cancellationToken = default)
     {
         await using var scope = services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        await dbContext.Database.MigrateAsync(cancellationToken);
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
         if (!await roleManager.RoleExistsAsync(CandidateRole))
         {
             var roleResult = await roleManager.CreateAsync(new IdentityRole<Guid>(CandidateRole));
             EnsureSucceeded(roleResult, "create the Candidate role");
+        }
+
+        if (!seedDemoUsers)
+        {
+            return;
         }
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();

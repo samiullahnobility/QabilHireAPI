@@ -40,7 +40,9 @@ builder.Services.AddCors(options => options.AddPolicy("Angular", policy => polic
 
 var app = builder.Build();
 
-await IdentitySeeder.SeedAsync(app.Services);
+await IdentitySeeder.SeedAsync(
+    app.Services,
+    seedDemoUsers: app.Environment.IsDevelopment());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -57,6 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();
