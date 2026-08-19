@@ -10,6 +10,8 @@ namespace QabilHire.Api.Controllers;
 [Route("api/auth")]
 public sealed class AuthController(UserManager<ApplicationUser> userManager, IJwtTokenService tokenService) : ControllerBase
 {
+    private const string CandidateRole = "Candidate";
+
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
@@ -26,6 +28,15 @@ public sealed class AuthController(UserManager<ApplicationUser> userManager, IJw
         {
             return ValidationProblem(new ValidationProblemDetails(
                 result.Errors.GroupBy(error => error.Code)
+                    .ToDictionary(group => group.Key, group => group.Select(error => error.Description).ToArray())));
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(user, CandidateRole);
+        if (!roleResult.Succeeded)
+        {
+            await userManager.DeleteAsync(user);
+            return ValidationProblem(new ValidationProblemDetails(
+                roleResult.Errors.GroupBy(error => error.Code)
                     .ToDictionary(group => group.Key, group => group.Select(error => error.Description).ToArray())));
         }
 
