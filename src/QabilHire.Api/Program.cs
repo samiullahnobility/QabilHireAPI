@@ -34,6 +34,7 @@ builder.Services.AddScoped<ResumeStructuredExtractor>();
 builder.Services.AddScoped<ResumeAnalysisService>();
 builder.Services.Configure<GroqOptions>(builder.Configuration.GetSection("Groq"));
 builder.Services.AddHttpClient<GroqResumeExtractor>();
+builder.Services.AddHttpClient<GroqResumeAnalyzer>();
 builder.Services.Configure<SupabaseStorageOptions>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddHttpClient<ISupabaseStorageService, SupabaseStorageService>();
 

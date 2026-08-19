@@ -16,7 +16,8 @@ namespace QabilHire.Api.Controllers;
 public sealed class ResumesAnalysisController(
     ApplicationDbContext dbContext,
     UserManager<ApplicationUser> userManager,
-    ResumeAnalysisService analysisService) : ControllerBase
+    ResumeAnalysisService analysisService,
+    GroqResumeAnalyzer groqAnalyzer) : ControllerBase
 {
     [HttpPost("{id:guid}/analyze")]
     public async Task<ActionResult<ResumeResponse>> Analyze(Guid id, CancellationToken cancellationToken)
@@ -27,9 +28,11 @@ public sealed class ResumesAnalysisController(
         var resume = await dbContext.Resumes.SingleOrDefaultAsync(x => x.Id == id && x.UserId == user.Id, cancellationToken);
         if (resume is null) return NotFound();
 
-        var analysis = analysisService.Analyze(resume.OriginalText);
+        var analysisSource = resume.ExtractedJson ?? resume.OriginalText ?? string.Empty;
+        var analysis = await groqAnalyzer.AnalyzeAsync(analysisSource, resume.TargetRole, cancellationToken)
+            ?? analysisService.Analyze(resume.OriginalText);
         resume.Score = analysis.Score;
-        resume.AnalysisJson = JsonSerializer.Serialize(analysis);
+        resume.AnalysisJson = JsonSerializer.Serialize(analysis, JsonSerializerOptions.Web);
         resume.Status = "Completed";
         resume.UpdatedAtUtc = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);

@@ -36,6 +36,9 @@ public sealed class ResumeAnalysisService
 
         return new ResumeAnalysisResult(
             score,
+            Math.Clamp(score + (hasContact ? 5 : -5), 0, 100),
+            Math.Clamp(score + (hasSkills ? 4 : -8), 0, 100),
+            Math.Clamp(score + (hasMetrics ? 8 : -10), 0, 100),
             strengths,
             Array.Empty<string>(),
             suggestions,
@@ -45,6 +48,9 @@ public sealed class ResumeAnalysisService
 
 public sealed record ResumeAnalysisResult(
     int Score,
+    int AtsCompatibility,
+    int KeywordStrength,
+    int ImpactStatements,
     IReadOnlyCollection<string> Strengths,
     IReadOnlyCollection<string> MissingKeywords,
     IReadOnlyCollection<string> Suggestions,

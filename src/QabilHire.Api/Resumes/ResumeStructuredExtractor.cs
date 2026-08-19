@@ -25,19 +25,29 @@ public sealed class ResumeStructuredExtractor
         var linkedIn = Regex.Match(text, @"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+", RegexOptions.IgnoreCase).Value;
         var website = Regex.Match(text, @"https?://(?![^\s]*linkedin\.com)[^\s]+", RegexOptions.IgnoreCase).Value.TrimEnd('.', ',');
 
+        var dynamicSections = new[]
+        {
+            Section("Professional Summary", "summary", Join(sections, "summary")),
+            Section("Skills", "skills", Items(sections, "skills")),
+            Section("Experience", "experience", Entries(sections, "experience")),
+            Section("Education", "education", Entries(sections, "education")),
+            Section("Projects", "projects", Entries(sections, "projects")),
+            Section("Certifications", "certifications", Items(sections, "certifications")),
+            Section("Languages", "languages", Items(sections, "languages")),
+            Section("Additional Information", "additional", Entries(sections, "awards"))
+        }.Where(section => section.Items.Length > 0).ToArray();
+
         return new
         {
             contact = new { name = GuessName(lines), email, phone, linkedIn, website },
-            summary = Join(sections, "summary"),
-            skills = Items(sections, "skills"),
-            experience = Entries(sections, "experience"),
-            education = Entries(sections, "education"),
-            projects = Entries(sections, "projects"),
-            certifications = Items(sections, "certifications"),
-            languages = Items(sections, "languages"),
-            additional = Entries(sections, "awards")
+            sections = dynamicSections
         };
     }
+
+    private static ResumeSection Section(string heading, string category, string value) =>
+        new(heading, category, string.IsNullOrWhiteSpace(value) ? [] : [value]);
+
+    private static ResumeSection Section(string heading, string category, string[] items) => new(heading, category, items);
 
     private static Dictionary<string, List<string>> SplitSections(string text)
     {
@@ -79,3 +89,5 @@ public sealed class ResumeStructuredExtractor
     private static string[] Entries(Dictionary<string, List<string>> sections, string key) => sections[key]
         .Select(line => line.TrimStart('-', '•', ' ')).Where(line => line.Length > 1).ToArray();
 }
+
+public sealed record ResumeSection(string Heading, string Category, string[] Items);
