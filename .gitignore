@@ -1,17 +1,21 @@
 ## .NET build output
 bin/
 obj/
+artifacts/
+.build-output/
 
 ## User-specific files
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.DotSettings.user
 
 ## IDE settings
 .vs/
 .vscode/
 .idea/
+.fleet/
 
 ## Local configuration and secrets
 appsettings.Development.json
@@ -19,13 +23,20 @@ appsettings.Local.json
 .env
 .env.*
 !.env.example
+secrets.json
 
 ## Logs and generated artifacts
 logs/
 *.log
 TestResults/
 coverage/
+coverage.*
+*.trx
+*.coverage
+*.coveragexml
 
 ## Operating-system files
 .DS_Store
 Thumbs.db
+Desktop.ini
+*.stackdump

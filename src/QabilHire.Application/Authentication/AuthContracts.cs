@@ -1,6 +1,23 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace QabilHire.Application.Authentication;
 
-public sealed record RegisterRequest(string FullName, string Email, string Password);
-public sealed record LoginRequest(string Email, string Password);
+public sealed record RegisterRequest(
+    [Required, StringLength(100, MinimumLength = 2)] string FullName,
+    [Required, EmailAddress, StringLength(254)] string Email,
+    [Required, StringLength(128, MinimumLength = 8)] string Password);
+
+public sealed record LoginRequest(
+    [Required, EmailAddress, StringLength(254)] string Email,
+    [Required, StringLength(128)] string Password);
+
+public sealed record ForgotPasswordRequest(
+    [Required, EmailAddress, StringLength(254)] string Email);
+
+public sealed record ResetPasswordRequest(
+    [Required, EmailAddress, StringLength(254)] string Email,
+    [Required] string Token,
+    [Required, StringLength(128, MinimumLength = 8)] string NewPassword);
+
 public sealed record AuthResponse(string AccessToken, DateTime ExpiresAtUtc, UserResponse User);
-public sealed record UserResponse(Guid Id, string FullName, string Email);
+public sealed record UserResponse(Guid Id, string FullName, string Email, IReadOnlyCollection<string> Roles, bool ProfileComplete);
