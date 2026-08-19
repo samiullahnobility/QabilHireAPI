@@ -14,6 +14,9 @@ public sealed class CandidateProfile
     public string Achievement { get; set; } = string.Empty;
     public string Institution { get; set; } = string.Empty;
     public string Qualification { get; set; } = string.Empty;
+    public string GraduationYear { get; set; } = string.Empty;
+    public string ExperienceDuration { get; set; } = string.Empty;
+    public string SkillLevel { get; set; } = string.Empty;
     public string? LinkedInUrl { get; set; }
     public string? PortfolioUrl { get; set; }
     public string TargetRole { get; set; } = string.Empty;

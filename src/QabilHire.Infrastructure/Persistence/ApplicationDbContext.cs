@@ -26,6 +26,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             profile.Property(x => x.Achievement).HasMaxLength(1000);
             profile.Property(x => x.Institution).HasMaxLength(160);
             profile.Property(x => x.Qualification).HasMaxLength(160);
+            profile.Property(x => x.GraduationYear).HasMaxLength(20);
+            profile.Property(x => x.ExperienceDuration).HasMaxLength(60);
+            profile.Property(x => x.SkillLevel).HasMaxLength(40);
             profile.Property(x => x.LinkedInUrl).HasMaxLength(500);
             profile.Property(x => x.PortfolioUrl).HasMaxLength(500);
             profile.Property(x => x.TargetRole).HasMaxLength(120);

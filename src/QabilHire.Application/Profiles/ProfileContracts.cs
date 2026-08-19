@@ -13,6 +13,9 @@ public sealed record UpsertCandidateProfileRequest(
     [Required, StringLength(1000)] string Achievement,
     [Required, StringLength(160)] string Institution,
     [Required, StringLength(160)] string Qualification,
+    [Required, StringLength(20)] string GraduationYear,
+    [Required, StringLength(60)] string ExperienceDuration,
+    [Required, StringLength(40)] string SkillLevel,
     [Url, StringLength(500)] string? LinkedInUrl,
     [Url, StringLength(500)] string? PortfolioUrl,
     [Required, StringLength(120)] string TargetRole,
@@ -24,6 +27,6 @@ public sealed record UpsertCandidateProfileRequest(
 public sealed record CandidateProfileResponse(
     Guid Id, string Headline, string ExperienceLevel, string Education, string CurrentRole,
     IReadOnlyCollection<string> Skills, string Company, string Responsibilities, string Achievement,
-    string Institution, string Qualification, string? LinkedInUrl, string? PortfolioUrl,
+    string Institution, string Qualification, string GraduationYear, string ExperienceDuration, string SkillLevel, string? LinkedInUrl, string? PortfolioUrl,
     string TargetRole, string Industry, string Location, IReadOnlyCollection<string> InterviewPreferences,
     string CareerGoal, bool IsComplete, DateTime UpdatedAtUtc);
