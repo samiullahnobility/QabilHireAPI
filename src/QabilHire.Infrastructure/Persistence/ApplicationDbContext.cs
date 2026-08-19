@@ -9,6 +9,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     : IdentityDbContext<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<CandidateProfile> CandidateProfiles => Set<CandidateProfile>();
+    public DbSet<Resume> Resumes => Set<Resume>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -36,6 +37,25 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             profile.Property(x => x.Location).HasMaxLength(120);
             profile.Property(x => x.CareerGoal).HasMaxLength(1000);
             profile.HasOne<ApplicationUser>().WithOne().HasForeignKey<CandidateProfile>(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<Resume>(resume =>
+        {
+            resume.HasKey(x => x.Id);
+            resume.HasIndex(x => x.UserId);
+            resume.Property(x => x.FileName).HasMaxLength(260);
+            resume.Property(x => x.DisplayName).HasMaxLength(120);
+            resume.Property(x => x.TargetRole).HasMaxLength(120);
+            resume.Property(x => x.StorageBucket).HasMaxLength(80);
+            resume.Property(x => x.StoragePath).HasMaxLength(500);
+            resume.Property(x => x.ContentType).HasMaxLength(120);
+            resume.Property(x => x.Extension).HasMaxLength(20);
+            resume.Property(x => x.Status).HasMaxLength(40);
+            resume.Property(x => x.OriginalText).HasColumnType("text");
+            resume.Property(x => x.ExtractedJson).HasColumnType("text");
+            resume.Property(x => x.AnalysisJson).HasColumnType("text");
+            resume.Property(x => x.IsDeleted);
+            resume.HasIndex(x => new { x.UserId, x.IsActive });
+            resume.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

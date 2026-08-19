@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QabilHire.Infrastructure.Persistence;
@@ -12,9 +13,11 @@ using QabilHire.Infrastructure.Persistence;
 namespace QabilHire.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260819190128_AlignResumeManagementModel")]
+    partial class AlignResumeManagementModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -272,7 +275,7 @@ namespace QabilHire.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("CandidateProfiles", (string)null);
+                    b.ToTable("CandidateProfiles");
                 });
 
             modelBuilder.Entity("QabilHire.Domain.Entities.Resume", b =>
@@ -362,7 +365,7 @@ namespace QabilHire.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId", "IsActive");
 
-                    b.ToTable("Resumes", (string)null);
+                    b.ToTable("Resumes");
                 });
 
             modelBuilder.Entity("QabilHire.Infrastructure.Identity.ApplicationUser", b =>

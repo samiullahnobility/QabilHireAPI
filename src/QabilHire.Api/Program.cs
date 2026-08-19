@@ -8,6 +8,8 @@ using QabilHire.Api.Authentication;
 using QabilHire.Api.ErrorHandling;
 using QabilHire.Api.Email;
 using QabilHire.Api.Middleware;
+using QabilHire.Api.Resumes;
+using QabilHire.Api.Storage;
 using QabilHire.Api.RateLimiting;
 using QabilHire.Api.Logging;
 using QabilHire.Infrastructure;
@@ -27,6 +29,13 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<RefreshTokenService>();
 builder.Services.AddScoped<IPasswordResetEmailSender, SmtpPasswordResetEmailSender>();
+builder.Services.AddScoped<IResumeTextExtractor, ResumeTextExtractor>();
+builder.Services.AddScoped<ResumeStructuredExtractor>();
+builder.Services.AddScoped<ResumeAnalysisService>();
+builder.Services.Configure<GroqOptions>(builder.Configuration.GetSection("Groq"));
+builder.Services.AddHttpClient<GroqResumeExtractor>();
+builder.Services.Configure<SupabaseStorageOptions>(builder.Configuration.GetSection("Supabase"));
+builder.Services.AddHttpClient<ISupabaseStorageService, SupabaseStorageService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT signing key is not configured.");

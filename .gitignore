@@ -3,6 +3,8 @@ bin/
 obj/
 artifacts/
 .build-output/
+.build/
+.tools/
 
 ## User-specific files
 *.user
