@@ -6,14 +6,14 @@ public sealed class ResumeStructuredExtractor
 {
     private static readonly Dictionary<string, string[]> SectionNames = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["summary"] = ["summary", "profile", "professional summary", "objective", "about me"],
-        ["skills"] = ["skills", "core skills", "core competencies", "technical skills", "expertise", "competencies", "tools"],
-        ["experience"] = ["experience", "work experience", "professional experience", "employment", "work history"],
-        ["education"] = ["education", "academic background", "qualifications"],
-        ["projects"] = ["projects", "project highlights", "selected projects", "personal projects"],
-        ["certifications"] = ["certifications", "certificates", "licenses", "training"],
-        ["languages"] = ["languages", "language proficiency"],
-        ["awards"] = ["awards", "honors", "achievements", "publications", "volunteering", "work style", "services", "best fit for"]
+        ["summary"] = ["summary", "profile", "professional summary", "career summary", "executive summary", "professional profile", "personal profile", "objective", "career objective", "about me", "overview"],
+        ["skills"] = ["skills", "core skills", "key skills", "professional skills", "technical skills", "soft skills", "core competencies", "areas of expertise", "expertise", "competencies", "technologies", "tech stack", "tools", "tools and technologies"],
+        ["experience"] = ["experience", "work experience", "professional experience", "relevant experience", "career experience", "employment", "employment history", "work history", "career history", "professional background", "internships", "freelance experience"],
+        ["education"] = ["education", "academic background", "academic history", "education and training", "qualifications", "academic qualifications", "degrees", "coursework"],
+        ["projects"] = ["projects", "project highlights", "selected projects", "key projects", "professional projects", "personal projects", "portfolio", "case studies"],
+        ["certifications"] = ["certifications", "certificates", "licenses", "licenses and certifications", "professional development", "courses", "training", "training and certifications"],
+        ["languages"] = ["languages", "language proficiency", "language skills", "spoken languages"],
+        ["awards"] = ["awards", "honors", "honors and awards", "achievements", "accomplishments", "publications", "research", "volunteering", "volunteer experience", "community involvement", "professional memberships", "affiliations", "interests", "work style", "services", "best fit for", "references", "additional information"]
     };
 
     public object Extract(string text)
@@ -25,29 +25,19 @@ public sealed class ResumeStructuredExtractor
         var linkedIn = Regex.Match(text, @"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w-]+", RegexOptions.IgnoreCase).Value;
         var website = Regex.Match(text, @"https?://(?![^\s]*linkedin\.com)[^\s]+", RegexOptions.IgnoreCase).Value.TrimEnd('.', ',');
 
-        var dynamicSections = new[]
-        {
-            Section("Professional Summary", "summary", Join(sections, "summary")),
-            Section("Skills", "skills", Items(sections, "skills")),
-            Section("Experience", "experience", Entries(sections, "experience")),
-            Section("Education", "education", Entries(sections, "education")),
-            Section("Projects", "projects", Entries(sections, "projects")),
-            Section("Certifications", "certifications", Items(sections, "certifications")),
-            Section("Languages", "languages", Items(sections, "languages")),
-            Section("Additional Information", "additional", Entries(sections, "awards"))
-        }.Where(section => section.Items.Length > 0).ToArray();
-
         return new
         {
             contact = new { name = GuessName(lines), email, phone, linkedIn, website },
-            sections = dynamicSections
+            summary = Join(sections, "summary"),
+            skills = Items(sections, "skills"),
+            experience = Entries(sections, "experience"),
+            education = Entries(sections, "education"),
+            projects = Entries(sections, "projects"),
+            certifications = Items(sections, "certifications"),
+            languages = Items(sections, "languages"),
+            additional = Entries(sections, "awards")
         };
     }
-
-    private static ResumeSection Section(string heading, string category, string value) =>
-        new(heading, category, string.IsNullOrWhiteSpace(value) ? [] : [value]);
-
-    private static ResumeSection Section(string heading, string category, string[] items) => new(heading, category, items);
 
     private static Dictionary<string, List<string>> SplitSections(string text)
     {
@@ -89,5 +79,3 @@ public sealed class ResumeStructuredExtractor
     private static string[] Entries(Dictionary<string, List<string>> sections, string key) => sections[key]
         .Select(line => line.TrimStart('-', '•', ' ')).Where(line => line.Length > 1).ToArray();
 }
-
-public sealed record ResumeSection(string Heading, string Category, string[] Items);

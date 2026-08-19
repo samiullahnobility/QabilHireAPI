@@ -18,29 +18,32 @@ public sealed class GroqResumeExtractor(HttpClient httpClient, IOptions<GroqOpti
         Return one valid JSON object only, with exactly this shape and no markdown or extra properties:
         {
           "contact":{"name":"","email":"","phone":"","linkedIn":"","website":""},
-          "sections":[{"heading":"","category":"","items":[""]}]
+          "summary":"",
+          "skills":[""],
+          "experience":[""],
+          "education":[""],
+          "projects":[""],
+          "certifications":[""],
+          "languages":[""],
+          "additional":[""]
         }
 
         Extraction rules:
         - Capture the candidate's name, email, phone, LinkedIn, portfolio, GitHub, and personal website when present.
           Put the best non-LinkedIn professional URL in website. Preserve placeholders if the document uses them.
-        - Preserve each meaningful source section as a separate sections item. Use its original heading when available;
-          otherwise create a short accurate heading based on its content. Do not force standard resume headings.
-        - category is internal classification and must be one of: summary, skills, experience, education, projects,
-          certifications, languages, additional. Multiple sections may use the same category.
-        - A summary category must contain only the professional headline, objective, profile, or summary text.
-        - Skills category items must include every explicit skill, tool, technology, platform, methodology, domain competency, and
+        - summary must contain only the professional headline, objective, profile, or summary text.
+        - skills must include every explicit skill, tool, technology, platform, methodology, domain competency, and
           interpersonal skill. Split combined lists into clean individual values and remove duplicates.
-        - Experience category must contain only real employment, contract, internship, or freelance engagements. Create one
+        - experience must contain only real employment, contract, internship, or freelance engagements. Create one
           complete item per role containing title, employer/client, location, dates, responsibilities, and achievements
           that are actually present. Never convert projects, offered services, desired roles, or general abilities into jobs.
-        - Education category must contain one complete item per qualification, including degree, subject, institution, location,
+        - education must contain one complete item per qualification, including degree, subject, institution, location,
           dates, grade, and honors when present.
-        - Projects category must contain one complete item per project, preserving its name, purpose, domain, technologies,
+        - projects must contain one complete item per project, preserving its name, purpose, domain, technologies,
           features, responsibilities, and results. Detect adjacent project titles even when line breaks are missing.
-        - Certifications category must include certifications, licenses, courses, and formal training only.
-        - Languages category must include spoken/written languages and proficiency only, not programming languages.
-        - Additional category must retain relevant information that does not belong elsewhere, including awards, publications,
+        - certifications must include certifications, licenses, courses, and formal training only.
+        - languages must include spoken/written languages and proficiency only, not programming languages.
+        - additional must retain relevant information that does not belong elsewhere, including awards, publications,
           volunteering, work style, services offered, target roles, interests, and availability.
         - Classify each meaningful source detail exactly once in the best matching field. Do not move content into a
           nearby section merely because the PDF layout is flattened.
