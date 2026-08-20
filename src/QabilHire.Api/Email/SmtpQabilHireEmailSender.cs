@@ -30,6 +30,8 @@ public sealed class SmtpQabilHireEmailSender(IConfiguration configuration) : IQa
 
     private async Task SendAsync(ApplicationUser user, string subject, string body, CancellationToken cancellationToken)
     {
+        if (!configuration.GetValue("Email:Enabled", false)) return;
+
         var host = Required("Email:Smtp:Host");
         var fromAddress = Required("Email:FromAddress");
         var fromName = configuration["Email:FromName"] ?? "QabilHire";
