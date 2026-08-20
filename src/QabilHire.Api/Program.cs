@@ -28,7 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<RefreshTokenService>();
-builder.Services.AddScoped<IPasswordResetEmailSender, SmtpPasswordResetEmailSender>();
+builder.Services.AddScoped<IQabilHireEmailSender, SmtpQabilHireEmailSender>();
 builder.Services.AddScoped<IResumeTextExtractor, ResumeTextExtractor>();
 builder.Services.AddScoped<ResumeStructuredExtractor>();
 builder.Services.AddScoped<ResumeAnalysisService>();

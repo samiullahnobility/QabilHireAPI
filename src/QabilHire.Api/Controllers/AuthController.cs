@@ -18,7 +18,7 @@ public sealed class AuthController(
     UserManager<ApplicationUser> userManager,
     IJwtTokenService tokenService,
     RefreshTokenService refreshTokenService,
-    IPasswordResetEmailSender passwordResetEmailSender,
+    IQabilHireEmailSender emailSender,
     IConfiguration configuration,
     ILogger<AuthController> logger,
     ApplicationDbContext dbContext) : ControllerBase
@@ -53,6 +53,15 @@ public sealed class AuthController(
             return ValidationProblem(new ValidationProblemDetails(
                 roleResult.Errors.GroupBy(error => error.Code)
                     .ToDictionary(group => group.Key, group => group.Select(error => error.Description).ToArray())));
+        }
+
+        try
+        {
+            await emailSender.SendWelcomeAsync(user, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Unable to deliver the welcome email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
         }
 
         return Ok(await CreateSessionResponse(user));
@@ -110,7 +119,7 @@ public sealed class AuthController(
 
             try
             {
-                await passwordResetEmailSender.SendAsync(user, resetLink, cancellationToken);
+                await emailSender.SendPasswordResetAsync(user, resetLink, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -123,7 +132,7 @@ public sealed class AuthController(
 
     [HttpPost("reset-password")]
     [EnableRateLimiting(RateLimitPolicyNames.PasswordRecovery)]
-    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(request.Email.Trim());
         if (user is null)
@@ -139,6 +148,14 @@ public sealed class AuthController(
 
         await refreshTokenService.RevokeUserAsync(user);
         DeleteRefreshTokenCookie();
+        try
+        {
+            await emailSender.SendPasswordChangedAsync(user, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Unable to deliver the password-changed email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
+        }
         return NoContent();
     }
 
