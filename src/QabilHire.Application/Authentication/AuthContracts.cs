@@ -19,5 +19,5 @@ public sealed record ResetPasswordRequest(
     [Required] string Token,
     [Required, StringLength(128, MinimumLength = 8)] string NewPassword);
 
-public sealed record AuthResponse(string AccessToken, DateTime ExpiresAtUtc, UserResponse User);
+public sealed record AuthResponse(string AccessToken, DateTime ExpiresAtUtc, UserResponse User, string? Message = null, bool EmailEnabled = true);
 public sealed record UserResponse(Guid Id, string FullName, string Email, IReadOnlyCollection<string> Roles, bool ProfileComplete);

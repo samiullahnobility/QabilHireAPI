@@ -55,16 +55,24 @@ public sealed class AuthController(
                     .ToDictionary(group => group.Key, group => group.Select(error => error.Description).ToArray())));
         }
 
-        try
+        var emailEnabled = configuration.GetValue("Email:Enabled", false);
+        var registrationMessage = "Your QabilHire account has been created.";
+        if (emailEnabled)
         {
-            await emailSender.SendWelcomeAsync(user, cancellationToken);
+            try
+            {
+                await emailSender.SendWelcomeAsync(user, cancellationToken);
+                registrationMessage = "Your QabilHire account has been created and a welcome email was sent.";
+            }
+            catch (Exception exception)
+            {
+                registrationMessage = "Your account was created, but the welcome email could not be sent.";
+                logger.LogError(exception, "Unable to deliver the welcome email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
+            }
         }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, "Unable to deliver the welcome email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
-        }
+        else registrationMessage = "Your account was created. Email delivery is currently disabled, so no welcome email was sent.";
 
-        return Ok(await CreateSessionResponse(user));
+        return Ok(await CreateSessionResponse(user, registrationMessage, emailEnabled));
     }
 
     [HttpPost("login")]
@@ -109,6 +117,11 @@ public sealed class AuthController(
     [EnableRateLimiting(RateLimitPolicyNames.PasswordRecovery)]
     public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
+        if (!configuration.GetValue("Email:Enabled", false))
+        {
+            return Accepted(new { message = "Email delivery is currently disabled. A password-reset email cannot be sent right now.", emailEnabled = false });
+        }
+
         var user = await userManager.FindByEmailAsync(request.Email.Trim());
         if (user is not null)
         {
@@ -127,7 +140,7 @@ public sealed class AuthController(
             }
         }
 
-        return Accepted(new { message = "If an account exists for that email, a password-reset link has been sent." });
+        return Accepted(new { message = "If an account exists for that email, a password-reset link has been sent.", emailEnabled = true });
     }
 
     [HttpPost("reset-password")]
@@ -148,15 +161,23 @@ public sealed class AuthController(
 
         await refreshTokenService.RevokeUserAsync(user);
         DeleteRefreshTokenCookie();
-        try
+        var emailEnabled = configuration.GetValue("Email:Enabled", false);
+        var message = "Your password has been reset successfully.";
+        if (emailEnabled)
         {
-            await emailSender.SendPasswordChangedAsync(user, cancellationToken);
+            try
+            {
+                await emailSender.SendPasswordChangedAsync(user, cancellationToken);
+                message = "Your password has been reset and a confirmation email was sent.";
+            }
+            catch (Exception exception)
+            {
+                message = "Your password was reset, but the confirmation email could not be sent.";
+                logger.LogError(exception, "Unable to deliver the password-changed email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
+            }
         }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, "Unable to deliver the password-changed email. TraceId: {TraceId}", HttpContext.TraceIdentifier);
-        }
-        return NoContent();
+        else message = "Your password was reset. Email delivery is currently disabled, so no confirmation email was sent.";
+        return Ok(new { message, emailEnabled });
     }
 
     [Authorize]
@@ -179,11 +200,12 @@ public sealed class AuthController(
         return new AuthResponse(token, expiresAtUtc, await CreateUserResponse(user, roles.ToArray()));
     }
 
-    private async Task<AuthResponse> CreateSessionResponse(ApplicationUser user)
+    private async Task<AuthResponse> CreateSessionResponse(ApplicationUser user, string? message = null, bool emailEnabled = true)
     {
         var refreshToken = await refreshTokenService.IssueAsync(user);
         Response.Cookies.Append(RefreshTokenCookie, refreshToken, CreateRefreshTokenCookieOptions());
-        return await CreateResponse(user);
+        var response = await CreateResponse(user);
+        return response with { Message = message, EmailEnabled = emailEnabled };
     }
 
     private CookieOptions CreateRefreshTokenCookieOptions() => new()
