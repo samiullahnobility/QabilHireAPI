@@ -31,12 +31,12 @@ public sealed class GroqResumeExtractor(HttpClient httpClient, IOptions<GroqOpti
         {
             model = settings.Model,
             temperature = 0,
-            max_tokens = 4000,
+            max_tokens = 6000,
             response_format = new { type = "json_object" },
             messages = new[]
             {
                 new { role = "system", content = SystemPrompt },
-                new { role = "user", content = $"Resume text:\n---\n{text[..Math.Min(text.Length, 40000)]}\n---" }
+                new { role = "user", content = $"Resume text:\n---\n{text[..Math.Min(text.Length, 25000)]}\n---" }
             }
         }), Encoding.UTF8, "application/json");
 
