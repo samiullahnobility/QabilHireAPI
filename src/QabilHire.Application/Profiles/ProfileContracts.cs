@@ -15,7 +15,7 @@ public sealed record UpsertCandidateProfileRequest(
     [Required, StringLength(160)] string Qualification,
     [Required, StringLength(20)] string GraduationYear,
     [Required, StringLength(60)] string ExperienceDuration,
-    [Required, StringLength(40)] string SkillLevel,
+    [StringLength(40)] string? SkillLevel,
     [OptionalUrl, StringLength(500)] string? LinkedInUrl,
     [OptionalUrl, StringLength(500)] string? PortfolioUrl,
     [Required, StringLength(120)] string TargetRole,

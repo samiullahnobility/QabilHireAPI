@@ -43,7 +43,7 @@ public sealed class ProfileController(ApplicationDbContext dbContext, UserManage
     {
         p.Headline=r.Headline.Trim(); p.ExperienceLevel=r.ExperienceLevel.Trim(); p.Education=r.Education.Trim(); p.CurrentRole=r.CurrentRole.Trim();
         p.Skills=r.Skills.Select(x=>x.Trim()).Where(x=>x.Length>0).Distinct(StringComparer.OrdinalIgnoreCase).Take(50).ToList();
-        p.Company=r.Company.Trim(); p.Responsibilities=r.Responsibilities.Trim(); p.Achievement=r.Achievement.Trim(); p.Institution=r.Institution.Trim(); p.Qualification=r.Qualification.Trim(); p.GraduationYear=r.GraduationYear.Trim(); p.ExperienceDuration=r.ExperienceDuration.Trim(); p.SkillLevel=r.SkillLevel.Trim();
+        p.Company=r.Company.Trim(); p.Responsibilities=r.Responsibilities.Trim(); p.Achievement=r.Achievement.Trim(); p.Institution=r.Institution.Trim(); p.Qualification=r.Qualification.Trim(); p.GraduationYear=r.GraduationYear.Trim(); p.ExperienceDuration=r.ExperienceDuration.Trim(); p.SkillLevel=r.SkillLevel?.Trim() ?? string.Empty;
         p.LinkedInUrl=Clean(r.LinkedInUrl); p.PortfolioUrl=Clean(r.PortfolioUrl); p.TargetRole=r.TargetRole.Trim(); p.Industry=r.Industry.Trim(); p.Location=r.Location.Trim();
         p.InterviewPreferences=r.InterviewPreferences.Select(x=>x.Trim()).Where(x=>x.Length>0).Distinct(StringComparer.OrdinalIgnoreCase).Take(20).ToList();
         p.CareerGoal=r.CareerGoal.Trim(); p.IsComplete=true; p.UpdatedAtUtc=now;
