@@ -16,8 +16,8 @@ public sealed record UpsertCandidateProfileRequest(
     [Required, StringLength(20)] string GraduationYear,
     [Required, StringLength(60)] string ExperienceDuration,
     [Required, StringLength(40)] string SkillLevel,
-    [Url, StringLength(500)] string? LinkedInUrl,
-    [Url, StringLength(500)] string? PortfolioUrl,
+    [OptionalUrl, StringLength(500)] string? LinkedInUrl,
+    [OptionalUrl, StringLength(500)] string? PortfolioUrl,
     [Required, StringLength(120)] string TargetRole,
     [Required, StringLength(120)] string Industry,
     [Required, StringLength(120)] string Location,
@@ -30,3 +30,15 @@ public sealed record CandidateProfileResponse(
     string Institution, string Qualification, string GraduationYear, string ExperienceDuration, string SkillLevel, string? LinkedInUrl, string? PortfolioUrl,
     string TargetRole, string Industry, string Location, IReadOnlyCollection<string> InterviewPreferences,
     string CareerGoal, bool IsComplete, DateTime UpdatedAtUtc);
+
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+public sealed class OptionalUrlAttribute : ValidationAttribute
+{
+    public override bool IsValid(object? value)
+    {
+        if (value is null || value is string { Length: 0 }) return true;
+        if (value is not string text || string.IsNullOrWhiteSpace(text)) return true;
+        return Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri)
+            && uri.Scheme is "http" or "https" or "ftp";
+    }
+}

@@ -41,7 +41,7 @@ public sealed class ResumesExtractController(
 
         resume.OriginalText = extractedText;
         var aiExtraction = await groqExtractor.ExtractAsync(extractedText, cancellationToken);
-        resume.ExtractedJson = aiExtraction ?? JsonSerializer.Serialize(structuredExtractor.Extract(extractedText));
+         resume.ExtractedJson = aiExtraction ?? JsonSerializer.Serialize(structuredExtractor.Extract(extractedText));
         resume.ParserVersion = aiExtraction is null ? 1 : 2;
         resume.Status = "Completed";
         resume.UpdatedAtUtc = now;
