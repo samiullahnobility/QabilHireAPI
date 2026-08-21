@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using QabilHire.Api.Resumes;
 using QabilHire.Api.Storage;
 using QabilHire.Infrastructure.Identity;
@@ -18,7 +17,6 @@ public sealed class ResumesExtractController(
     ApplicationDbContext dbContext,
     UserManager<ApplicationUser> userManager,
     IResumeTextExtractor textExtractor,
-    ResumeStructuredExtractor structuredExtractor,
     GroqResumeExtractor groqExtractor,
     ISupabaseStorageService storage) : ControllerBase
 {
@@ -41,8 +39,16 @@ public sealed class ResumesExtractController(
 
         resume.OriginalText = extractedText;
         var aiExtraction = await groqExtractor.ExtractAsync(extractedText, cancellationToken);
-         resume.ExtractedJson = aiExtraction ?? JsonSerializer.Serialize(structuredExtractor.Extract(extractedText));
-        resume.ParserVersion = aiExtraction is null ? 1 : 2;
+        if (aiExtraction is null)
+        {
+            resume.Status = "Failed";
+            resume.UpdatedAtUtc = DateTime.UtcNow;
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return StatusCode(StatusCodes.Status502BadGateway, new { message = "AI extraction failed. Please try again in a moment." });
+        }
+
+        resume.ExtractedJson = aiExtraction;
+        resume.ParserVersion = 2;
         resume.Status = "Completed";
         resume.UpdatedAtUtc = now;
         await dbContext.SaveChangesAsync(cancellationToken);
