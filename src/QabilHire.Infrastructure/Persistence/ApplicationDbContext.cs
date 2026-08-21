@@ -10,6 +10,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 {
     public DbSet<CandidateProfile> CandidateProfiles => Set<CandidateProfile>();
     public DbSet<Resume> Resumes => Set<Resume>();
+    public DbSet<JobMatch> JobMatches => Set<JobMatch>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -56,6 +57,23 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             resume.Property(x => x.IsDeleted);
             resume.HasIndex(x => new { x.UserId, x.IsActive });
             resume.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<JobMatch>(match =>
+        {
+            match.HasKey(x => x.Id);
+            match.HasIndex(x => x.UserId);
+            match.Property(x => x.TargetJobTitle).HasMaxLength(160);
+            match.Property(x => x.Company).HasMaxLength(160);
+            match.Property(x => x.JobDescription).HasColumnType("text");
+            match.Property(x => x.MatchLevel).HasMaxLength(40);
+            match.Property(x => x.MatchedSkillsJson).HasColumnType("jsonb");
+            match.Property(x => x.MatchedStrengthsJson).HasColumnType("jsonb");
+            match.Property(x => x.GapsJson).HasColumnType("jsonb");
+            match.Property(x => x.PrioritiesJson).HasColumnType("jsonb");
+            match.Property(x => x.LikelyQuestionsJson).HasColumnType("jsonb");
+            match.Property(x => x.Summary).HasMaxLength(2000);
+            match.Property(x => x.RecommendedNextStep).HasMaxLength(500);
+            match.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

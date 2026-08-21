@@ -9,6 +9,7 @@ using QabilHire.Api.ErrorHandling;
 using QabilHire.Api.Email;
 using QabilHire.Api.Middleware;
 using QabilHire.Api.Resumes;
+using QabilHire.Api.JobMatches;
 using QabilHire.Api.Storage;
 using QabilHire.Api.RateLimiting;
 using QabilHire.Api.Logging;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<ResumeAnalysisService>();
 builder.Services.Configure<GroqOptions>(builder.Configuration.GetSection("Groq"));
 builder.Services.AddHttpClient<GroqResumeExtractor>();
 builder.Services.AddHttpClient<GroqResumeAnalyzer>();
+builder.Services.AddHttpClient<GroqJobMatchAnalyzer>();
 builder.Services.Configure<SupabaseStorageOptions>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddHttpClient<ISupabaseStorageService, SupabaseStorageService>();
 
